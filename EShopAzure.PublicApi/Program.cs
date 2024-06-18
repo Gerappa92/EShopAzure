@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -38,9 +40,42 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
+app.MapGet("/calculatePi", ([FromQuery]long operations) =>
+{
+    var pi = Calculator.CalculatePi(operations);
+    return pi;
+})
+.WithName("CalculatePi")
+.WithOpenApi();
+
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+public static class Calculator
+{
+    public static double CalculatePi(long iterations)
+    {
+        double pi = 0;
+        bool isPositive = true;
+
+        for (long i = 0; i < iterations; i++)
+        {
+            if (isPositive)
+            {
+                pi += 1.0 / (2 * i + 1);
+            }
+            else
+            {
+                pi -= 1.0 / (2 * i + 1);
+            }
+            isPositive = !isPositive;
+        }
+
+        return pi * 4;
+    }
+}
+
