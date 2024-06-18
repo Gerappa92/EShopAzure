@@ -1,4 +1,4 @@
-﻿namespace EShopAzure.PublicApi.ExternalApi.Models;
+﻿namespace EShopAzure.WebPage.ExternalApi.Models;
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

@@ -1,0 +1,6 @@
+@EShopAzure.PublicApi_HostAddress = http://localhost:5108
+
+GET {{EShopAzure.PublicApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

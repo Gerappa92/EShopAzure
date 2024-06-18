@@ -1,7 +1,7 @@
-﻿using EShopAzure.PublicApi.ExternalApi.Models;
+﻿using EShopAzure.WebPage.ExternalApi.Models;
 using Refit;
 
-namespace EShopAzure.PublicApi.ExternalApi;
+namespace EShopAzure.WebPage.ExternalApi;
 
 internal interface IEShopAzureWebApi
 {

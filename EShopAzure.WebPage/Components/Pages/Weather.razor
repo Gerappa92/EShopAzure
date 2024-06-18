@@ -1,6 +1,6 @@
 ﻿@page "/weather"
-@using EShopAzure.PublicApi.ExternalApi
-@using EShopAzure.PublicApi.ExternalApi.Models
+@using EShopAzure.WebPage.ExternalApi
+@using EShopAzure.WebPage.ExternalApi.Models
 @attribute [StreamRendering]
 @inject IEShopAzureWebApi eshopApi
 
@@ -21,7 +21,7 @@ else
         <p>Failed to obtain data</p>
         <p>@errorMsg</p>
     }
-    else if(@forecasts != null)
+    else if (@forecasts != null)
     {
         <table class="table">
             <thead>

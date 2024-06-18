@@ -1,6 +1,4 @@
-﻿using EShopAzure.PublicApi.ExternalApi;
-
-namespace EShopAzure.PublicApi.Options;
+﻿namespace EShopAzure.WebPage.Options;
 
 public class ExternalApisOptions
 {

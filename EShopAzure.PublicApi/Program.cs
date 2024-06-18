@@ -1,46 +1,46 @@
-using EShopAzure.PublicApi.Components;
-using EShopAzure.PublicApi.ExternalApi;
-using EShopAzure.PublicApi.Options;
-using Microsoft.Extensions.Options;
-using Refit;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.Configure<ExternalApisOptions>(
-    builder.Configuration.GetSection(ExternalApisOptions.Position));
-
-builder.Services
-    .AddRefitClient<IEShopAzureWebApi>()
-    .ConfigureHttpClient((sp, c) => {
-        var api = sp.GetService<IOptions<ExternalApisOptions>>();
-        if(api == null)
-        {
-            throw new ArgumentNullException(nameof(api));
-        }
-        c.BaseAddress = new Uri(api.Value.EShopAzureWebApi.BaseAddress);
-        }
-    );
-
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddHttpLogging(o => { });
 
 var app = builder.Build();
 
-app.UseHttpLogging();
-
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseStaticFiles();
-app.UseAntiforgery();
+app.UseHttpsRedirection();
+app.UseHttpLogging();
 
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+var summaries = new[]
+{
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+};
+
+app.MapGet("/weatherforecast", () =>
+{
+    var forecast = Enumerable.Range(1, 5).Select(index =>
+        new WeatherForecast
+        (
+            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Random.Shared.Next(-20, 55),
+            summaries[Random.Shared.Next(summaries.Length)]
+        ))
+        .ToArray();
+    return forecast;
+})
+.WithName("GetWeatherForecast")
+.WithOpenApi();
 
 app.Run();
+
+internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+{
+    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
