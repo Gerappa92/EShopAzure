@@ -1,5 +1,8 @@
 ﻿@page "/weather"
+@using EShopAzure.PublicApi.ExternalApi
+@using EShopAzure.PublicApi.ExternalApi.Models
 @attribute [StreamRendering]
+@inject IEShopAzureWebApi eshopApi
 
 <PageTitle>Weather</PageTitle>
 
@@ -7,58 +10,65 @@
 
 <p>This component demonstrates showing data.</p>
 
-@if (forecasts == null)
+@if (loading)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
+    if (error)
+    {
+        <p>Failed to obtain data</p>
+        <p>@errorMsg</p>
+    }
+    else if(@forecasts != null)
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var forecast in forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
 }
 
 @code {
     private WeatherForecast[]? forecasts;
+    private bool loading = true;
+    private bool error = false;
+    private string errorMsg = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        try
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
-    }
+            forecasts = await eshopApi.GetWeatherForecast();
 
-    private class WeatherForecast
-    {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        }
+        catch (Exception ex)
+        {
+            errorMsg = ex.Message;
+            error = true;
+        }
+        finally
+        {
+            loading = false;
+        }
     }
 }
